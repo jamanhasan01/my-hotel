@@ -6,7 +6,7 @@ const Footer = () => (
   <footer className="bg-[var(--main)] text-white mt-16 py-12">
     <div className="container mx-auto px-4 sm:px-8 lg:px-16 grid grid-cols-1 md:grid-cols-4 gap-8">
       <div>
-        <Image className="mb-5" src={logo} width={100} height={200} alt="logo"></Image>
+        <Image className="mb-5" src={logo} width={100} height={200} alt="logo of image"></Image>
         <p className="">Your perfect destination for hotel bookings worldwide.</p>
       </div>
       <div>
