@@ -12,7 +12,7 @@ import {
   AirVent,
   Dumbbell,
 } from 'lucide-react'
-import IconText from './IconText' // Assuming IconText is a component you have defined elsewhere
+import IconText from './IconText' 
 
 const hotelData = {
   name: 'El Aurassi Hotel',
