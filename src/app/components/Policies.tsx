@@ -9,8 +9,8 @@ const Policies = () => (
         <div className='md:col-span-2'>
           <p className='font-semibold'>Available 24 hours</p>
           <p className='text-sm text-gray-600'>
-            Guests are required to show a photo identification and credit card upon check-in. You'll
-            need to let the property know in advance what time you'll arrive.
+            Guests are required to show a photo identification and credit card upon check-in. You ll
+            need to let the property know in advance what time you ll arrive.
           </p>
         </div>
       </div>

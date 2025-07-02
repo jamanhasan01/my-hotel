@@ -66,7 +66,7 @@ const hotelData = {
 };
 
   const Reviews = () => {
-    const [currentReview, setCurrentReview] = useState(0);
+    const [, setCurrentReview] = useState(0);
 
     const nextReview = () => setCurrentReview(prev => (prev + 1) % hotelData.reviews.length);
     const prevReview = () => setCurrentReview(prev => (prev - 1 + hotelData.reviews.length) % hotelData.reviews.length);

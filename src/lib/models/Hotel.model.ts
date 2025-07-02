@@ -28,7 +28,7 @@ const HotelSchema = new Schema(
       },
     ],
 
-    // Make reviews optional by removing 'required'
+
     reviews: [
       {
         title: String,

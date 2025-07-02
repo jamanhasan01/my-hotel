@@ -13,7 +13,7 @@ import {
   Dumbbell,
   BedDouble,
   Users,
-  Calendar as CalendarIcon, // Renamed to avoid conflict
+  Calendar as CalendarIcon,
 } from 'lucide-react'
 import {
   Select,
@@ -21,11 +21,11 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select' // Assuming this is the correct path for shadcn/ui Select
+} from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
 import { format } from 'date-fns'
-import IconText from './IconText' // Assuming IconText is a component you have defined elsewhere
+import IconText from './IconText'
 
 const hotelData = {
   name: 'El Aurassi Hotel',
@@ -127,7 +127,7 @@ const hotelData = {
   }),
 }
 
-const getFeatureIcon = (feature) => {
+const getFeatureIcon = (feature: string) => {
   switch (feature.toLowerCase()) {
     case 'wifi':
       return Wifi
@@ -152,8 +152,8 @@ const getFeatureIcon = (feature) => {
 }
 
 const Availability = () => {
-  const [checkInDate, setCheckInDate] = useState(new Date())
-  const [checkOutDate, setCheckOutDate] = useState()
+const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(undefined)
+const [checkInDate, setCheckInDate] = useState<Date | undefined>(new Date())
 
   return (
     <section className='container mx-auto mt-12 px-4 sm:px-8 lg:px-16'>
@@ -163,7 +163,10 @@ const Availability = () => {
           {/* Check-in Date Picker */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant={'outline'} className='w-full justify-start text-left font-normal border-gray-400'>
+              <Button
+                variant={'outline'}
+                className='w-full justify-start text-left font-normal border-gray-400'
+              >
                 <CalendarIcon className='mr-2 h-4 w-4' />
                 {checkInDate ? format(checkInDate, 'PPP') : <span>Check-in date</span>}
               </Button>
@@ -172,7 +175,7 @@ const Availability = () => {
               <Calendar
                 mode='single'
                 selected={checkInDate}
-                onSelect={setCheckInDate}
+                onSelect={(date) => date && setCheckInDate(date)}
                 initialFocus
               />
             </PopoverContent>
@@ -181,7 +184,10 @@ const Availability = () => {
           {/* Check-out Date Picker */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant={'outline'} className='w-full justify-start text-left font-normal border-gray-400'>
+              <Button
+                variant={'outline'}
+                className='w-full justify-start text-left font-normal border-gray-400'
+              >
                 <CalendarIcon className='mr-2 h-4 w-4' />
                 {checkOutDate ? format(checkOutDate, 'PPP') : <span>Check-out date</span>}
               </Button>
@@ -190,7 +196,7 @@ const Availability = () => {
               <Calendar
                 mode='single'
                 selected={checkOutDate}
-                onSelect={setCheckOutDate}
+                onSelect={(date) => date && setCheckOutDate(date)} 
                 initialFocus
               />
             </PopoverContent>

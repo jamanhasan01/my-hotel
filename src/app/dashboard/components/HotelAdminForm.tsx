@@ -10,7 +10,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Loader2, AlertCircle, Trash2, PlusCircle } from 'lucide-react'
 
-// The 'bathrooms' property has been added to the Room interface
 interface Room {
   name: string
   guests: number
@@ -18,7 +17,7 @@ interface Room {
   beds: string
   size: number
   features: string[]
-  bathrooms: number // New field
+  bathrooms: number
 }
 
 interface Review {
@@ -45,7 +44,6 @@ interface HotelFormData {
   reviews: Review[]
 }
 
-// Updated initial data for a new room
 const initialFormData: HotelFormData = {
   name: '',
   description: '',
@@ -73,10 +71,11 @@ export default function HotelAdminForm() {
 
     if (name.includes('.')) {
       const [parent, child] = name.split('.') as [keyof HotelFormData, string]
-      if (typeof formData[parent] === 'object' && formData[parent] !== null) {
+      const parentState = formData[parent]
+      if (typeof parentState === 'object' && parentState !== null) {
         setFormData((prev) => ({
           ...prev,
-          [parent]: { ...prev[parent], [child]: value },
+          [parent]: { ...(parentState as object), [child]: value },
         }))
       }
     } else {
@@ -84,53 +83,72 @@ export default function HotelAdminForm() {
     }
   }
 
-  const handleDynamicListChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    section: 'images' | 'rooms',
-    index: number
-  ) => {
-    const { name, value } = e.target
-    const list = [...formData[section]]
+const handleDynamicListChange = (
+  e: ChangeEvent<HTMLInputElement>,
+  section: 'images' | 'rooms',
+  index: number
+) => {
+  const { name, value } = e.target;
 
-    if (section === 'images') {
-      list[index] = value
-    } else if (section === 'rooms') {
-      const room = list[index] as Room
-      list[index] = {
-        ...room,
-        [name]: ['price', 'guests', 'bathrooms'].includes(name) ? Number(value) : value,
-      }
+  if (section === 'images') {
+    // Create the list inside the 'if' block for correct type inference
+    const updatedImages = [...formData.images];
+    updatedImages[index] = value;
+    setFormData((prev) => ({ ...prev, images: updatedImages }));
+
+  } else if (section === 'rooms') {
+    const updatedRooms = [...formData.rooms];
+    const roomToUpdate: Room = { ...updatedRooms[index] };
+    const roomKey = name as keyof Room;
+
+    if (
+      name === 'price' ||
+      name === 'guests' ||
+      name === 'bathrooms' ||
+      name === 'size'
+    ) {
+      (roomToUpdate[roomKey] as number) = Number(value);
+    } else {
+      (roomToUpdate[roomKey] as string | string[]) = value;
     }
 
-    setFormData((prev) => ({ ...prev, [section]: list }))
+    updatedRooms[index] = roomToUpdate;
+    setFormData((prev) => ({ ...prev, rooms: updatedRooms }));
   }
+};
 
   const handleFeatureChange = (feature: string) => {
     const currentFeatures = formData.propertyInfo.features || []
     const newFeatures = currentFeatures.includes(feature)
       ? currentFeatures.filter((f) => f !== feature)
       : [...currentFeatures, feature]
-    setFormData({ ...formData, propertyInfo: { ...formData.propertyInfo, features: newFeatures } })
+    setFormData((prev) => ({
+      ...prev,
+      propertyInfo: { ...prev.propertyInfo, features: newFeatures },
+    }))
   }
 
   const addField = (section: 'images' | 'rooms' | 'reviews') => {
-    const newField =
-      section === 'images'
-        ? ''
-        : section === 'rooms'
-        ? { name: '', guests: 2, price: 2, beds: 2, size: 0, features: [], bathrooms: 1 }
-        : { title: '', text: '', author: '', rating: 5, date: '' }
-
+    let newField: string | Room | Review
+    if (section === 'images') {
+      newField = ''
+    } else if (section === 'rooms') {
+      newField = { name: '', guests: 2, price: 0, beds: '1', size: 0, features: [], bathrooms: 1 }
+    } else {
+      newField = { title: '', text: '', author: '', rating: 5, date: '' }
+    }
     setFormData((prev) => ({ ...prev, [section]: [...prev[section], newField] }))
   }
 
   const removeField = (section: 'images' | 'rooms' | 'reviews', index: number) => {
-    const list = [...formData[section]]
-    list.splice(index, 1)
-    setFormData((prev) => ({ ...prev, [section]: list }))
+    setFormData((prev) => {
+      const list = [...prev[section]]
+      list.splice(index, 1)
+      return { ...prev, [section]: list }
+    })
   }
 
-  const handleSubmit = async (e: FormEvent) => {
+ const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
@@ -140,7 +158,7 @@ export default function HotelAdminForm() {
       const res = await fetch('/api/hotels', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json', // ✅ FIXED
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       })
@@ -150,16 +168,19 @@ export default function HotelAdminForm() {
         throw new Error(errRes.error || 'Something went wrong')
       }
 
-      const data = await res.json()
+      await res.json()
       setSuccess('Hotel created successfully!')
-      setFormData(initialFormData) // ✅ Reset form
-    } catch (error: any) {
-      setError(error.message || 'An unexpected error occurred')
+      setFormData(initialFormData)
+    } catch (error: unknown) { 
+      if (error instanceof Error) {
+        setError(error.message)
+      } else {
+        setError('An unexpected error occurred')
+      }
     } finally {
       setLoading(false)
     }
   }
-
   return (
     <Card className='max-w-4xl mx-auto my-8'>
       <CardHeader>
@@ -277,7 +298,6 @@ export default function HotelAdminForm() {
                 >
                   <Trash2 className='h-4 w-4' />
                 </Button>
-                {/* === MODIFIED SECTION START === */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
                     <Label>Room Name</Label>
@@ -302,8 +322,7 @@ export default function HotelAdminForm() {
                     <Label>Beds</Label>
                     <Input
                       name='beds'
-                      type='number'
-                      max={4}
+                      type='text'
                       value={room.beds}
                       onChange={(e) => handleDynamicListChange(e, 'rooms', index)}
                       placeholder='e.g., 1 King'
